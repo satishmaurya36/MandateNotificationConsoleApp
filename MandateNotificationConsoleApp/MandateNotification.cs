@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Hosting;
+﻿using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -12,21 +13,34 @@ namespace MandateNotificationConsoleApp
     {
         private readonly ILogger<MandateNotification> _logger;
         private Timer _timer;
+        private readonly IConfiguration _configuration;
+        private readonly MandateApiLogic _mandateApiLogic;
 
 
-        public MandateNotification(ILogger<MandateNotification> logger)
+        #region  ---- Mandate Notification ----- created by Satish Maurya ----
+        
+        public MandateNotification(ILogger<MandateNotification> logger,IConfiguration configuration, MandateApiLogic mandateApiLogic)
         {
             _logger = logger;
+            _configuration = configuration;
+            _mandateApiLogic = mandateApiLogic;
         }
+        //protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        //{
+        //    _logger.LogInformation("MandateNotification service started at: {time}", DateTime.Now);
+
+        //    ScheduleDailyTask(stoppingToken);
+
+        //    return Task.CompletedTask;
+        //}
         protected override Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            _logger.LogInformation("MandateNotification service started at: {time}", DateTime.Now);
+            _logger.LogInformation("MandateNotification started at: {time}", DateTime.Now);
 
-            ScheduleDailyTask(stoppingToken);
+            _timer = new Timer(async state => await RunTask(), null, TimeSpan.Zero, TimeSpan.FromMinutes(2));
 
             return Task.CompletedTask;
         }
-
         private void ScheduleDailyTask(CancellationToken stoppingToken)
         {
             // Calculate time until next 10 AM
@@ -54,14 +68,19 @@ namespace MandateNotificationConsoleApp
         private async Task RunTask()
         {
             WriteToFile("Task started at " + DateTime.Now);
-            MandateNotificationLogic logic = new MandateNotificationLogic();
+            MandateNotificationLogic logic = new MandateNotificationLogic(_configuration,_mandateApiLogic);
             try
             {
                 logic.ListMandateNotification();
+
+               await logic.ExecuteMandatesForPendingSmCodes();
+
                 _logger.LogInformation("Task executed at {time}", DateTime.Now);
             }
             catch (Exception ex)
             {
+                ExceptionLog.InsertLogException(ex, _configuration, "RunTask_MandateNotificationLogic");
+
                 _logger.LogError(ex, "Error running task");
                 WriteToFile("Error: " + ex.ToString());
             }
@@ -82,5 +101,6 @@ namespace MandateNotificationConsoleApp
                 sw.WriteLine(message);
             }
         }
+        #endregion
     }
 }
