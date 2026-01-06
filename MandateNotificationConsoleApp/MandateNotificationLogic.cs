@@ -124,17 +124,18 @@ namespace MandateNotificationConsoleApp
                 foreach (var smCode in smCodes)
                 {
                     bool success = await _mandateApiLogic.CallExecuteMandateApi(smCode);
-
-                    if (success)
-                    {
-                        int res = UpdateExecuteMandate(smCode);
-                        Console.WriteLine($"ExecuteMandate success for {smCode}");
-                        // Optional: update DB to mark ExecuteMandate = 1
-                    }
-                    else
-                    {
-                        Console.WriteLine($"ExecuteMandate failed for {smCode}");
-                    }
+                    
+                    int res = UpdateExecuteMandate(smCode);
+                    //if (success)
+                    //{
+                    //    int res = UpdateExecuteMandate(smCode);
+                    //    Console.WriteLine($"ExecuteMandate success for {smCode}");
+                    //    // Optional: update DB to mark ExecuteMandate = 1
+                    //}
+                    //else
+                    //{
+                    //    Console.WriteLine($"ExecuteMandate failed for {smCode}");
+                    //}
                 }
             }
             catch (Exception ex)
