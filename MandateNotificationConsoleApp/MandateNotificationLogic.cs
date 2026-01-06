@@ -19,6 +19,7 @@ namespace MandateNotificationConsoleApp
             _configuration = configuration;
             _mandateApiLogic = mandateApiLogic;
         }
+        #region  ---- Mandate Notification ----- created by Satish Maurya ----
         public async void ListMandateNotification()
         {
             DataTable dt = new DataTable();
@@ -59,7 +60,6 @@ namespace MandateNotificationConsoleApp
                 ExceptionLog.InsertLogException(ex, _configuration, "ListMandateNotification_MandateNotificationLogic");
             }
         }
-
         public int InsertMandateNotificationLog(string P_Phone, string SmCode, float AMT, DateTime PVN_RCP_DT)
         {
             int insertedId = 0;
@@ -116,7 +116,6 @@ namespace MandateNotificationConsoleApp
 
             return smCodeList;
         }
-
         public async Task ExecuteMandatesForPendingSmCodes()
         {
             List<string> smCodes = GetSmCodeList();
@@ -168,6 +167,6 @@ namespace MandateNotificationConsoleApp
             }
             return updatedId;
         }
-
+        #endregion
     }
 }
