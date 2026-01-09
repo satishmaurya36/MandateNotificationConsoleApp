@@ -15,5 +15,7 @@ namespace MandateNotificationConsoleApp
         public static readonly string SendSmsUrl = "https://apiuat.paisalo.in:4015/PDLadmin/api/SMS/SendSMS";
         //public static readonly string ExecuteMandate = "https://apiuat.paisalo.in:4015/Collection/api/ICICIMandate/ExecuteMandate";
         public static readonly string ExecuteMandates = "https://localhost:7170/api/ICICIMandate/ExecuteMandate";
+
+        public static readonly string StopMail = "dotnetdev1@paisalo.in";
     }
 }

@@ -41,6 +41,29 @@ namespace MandateNotificationConsoleApp
 
             return Task.CompletedTask;
         }
+        //protected override Task ExecuteAsync(CancellationToken stoppingToken)
+        //{
+        //    _logger.LogInformation("MandateNotification service started at: {time}", DateTime.Now);
+        //    WriteToFile("Scheduler started at " + DateTime.Now);
+
+        //    try
+        //    {
+        //        // Send start notification
+        //        _mandateApiLogic.SendMail(GlobalConfig.StopMail).Wait();
+
+        //    }
+        //    catch (Exception ex)
+        //    {
+        //        ExceptionLog.InsertLogException(ex, _configuration, "ExecuteAsync_MandateNotification");
+        //        _logger.LogError(ex, "Error sending start notification");
+        //        WriteToFile("Error sending start notification: " + ex.ToString());
+        //    }
+
+        //    // Run every 2 minutes
+        //    _timer = new Timer(async state => await RunTask(), null, TimeSpan.Zero, TimeSpan.FromMinutes(2));
+
+        //    return Task.CompletedTask;
+        //}
         private void ScheduleDailyTask(CancellationToken stoppingToken)
         {
             // Calculate time until next 10 AM
@@ -79,7 +102,7 @@ namespace MandateNotificationConsoleApp
             }
             catch (Exception ex)
             {
-                ExceptionLog.InsertLogException(ex, _configuration, "RunTask_MandateNotificationLogic");
+                ExceptionLog.InsertLogException(ex, _configuration, "RunTask_MandateNotification");
 
                 _logger.LogError(ex, "Error running task");
                 WriteToFile("Error: " + ex.ToString());
@@ -88,6 +111,32 @@ namespace MandateNotificationConsoleApp
             WriteToFile("Task finished at " + DateTime.Now);
             await Task.CompletedTask;
         }
+        public override async Task StopAsync(CancellationToken stoppingToken)
+        {
+            _logger.LogInformation("MandateNotification service stopping at: {time}", DateTime.Now);
+
+            // Dispose the timer so it doesn’t keep running
+            _timer?.Dispose();
+
+            // Send your custom message (to file, API, or notification system)
+            WriteToFile("Scheduler stopped at " + DateTime.Now);
+
+            // Example: call API or send notification
+            try
+            {
+                MandateApiLogic logic = new MandateApiLogic();
+                 await logic.SendMail(GlobalConfig.StopMail);
+            }
+            catch (Exception ex)
+            {
+                ExceptionLog.InsertLogException(ex, _configuration, "StopAsync_MandateNotification");
+                _logger.LogError(ex, "Error sending stop notification");
+                WriteToFile("Error sending stop notification: " + ex.ToString());
+            }
+
+            await base.StopAsync(stoppingToken);
+        }
+
         private void WriteToFile(string message)
         {
             string path = Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "LOSDOC");
